@@ -1,0 +1,20 @@
+name: Mysql actions demo
+run-name: ${{ github.actor }} is testing out Mysql GitHub Actions 🚀
+on: [push]
+jobs:
+  setup_mysql_database:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install MySQL client
+        run: sudo apt-get update && sudo apt-get install -y mysql-client
+
+      - name: Deploy to Database
+        env:
+          DB_HOST: ${{ secrets.DB_HOST || '127.0.0.1' }} 
+          DB_USER: ${{ secrets.DB_ADMIN_USER || 'root' }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD  || 'Secret5555'}}
+          DB_NAME: ${{ secrets.DB_NAME || 'mysql' }}
+        run: mysql -h $DB_HOST -u $DB_USER -p$DB_PASSWORD $DB_NAME < schema_changes.sql

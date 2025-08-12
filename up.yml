@@ -1,0 +1,27 @@
+- name: bootstrap mysql
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: docker compose up
+      community.docker.docker_compose_v2:
+        project_src: .
+        files:
+        - docker-compose.yml
+        state: present
+    - name: Install mysql-client
+      ansible.builtin.package:
+        name: mysql-client
+        update_cache: yes
+        state: present
+      become: yes
+    - name: Install mysql python connectors
+      ansible.builtin.pip:
+        name:
+          - pymysql
+          - mysql-connector-python
+    - name: install nektos/act
+      ansible.builtin.shell: curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+      args:
+        creates: bin/act
+
+

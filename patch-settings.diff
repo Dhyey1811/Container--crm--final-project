@@ -1,0 +1,22 @@
+--- django-crm/webcrm/settings.py	2025-08-10 21:21:55.156939665 +0000
++++ settings.py	2025-08-10 21:45:02.705003288 +0000
+@@ -22,8 +22,8 @@
+ SECRET_KEY = 'j1c=6$s-dh#$ywt@(q4cm=j&0c*!0x!e-qm6k1%yoliec(15tn'
+ 
+ # Add your hosts to the list.
+-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+-
++ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'codespace-dev.k3p.dev']
++CSRF_TRUSTED_ORIGINS=['https://codespace-dev.k3p.dev']
+ # Database
+ DATABASES = {
+     'default': {
+@@ -38,7 +38,7 @@
+         'NAME': 'crm_db',
+         'USER': 'crm_user',
+         'PASSWORD': 'crmpass',
+-        'HOST': 'localhost',
++        'HOST': 'db',
+     }
+ }
+ 

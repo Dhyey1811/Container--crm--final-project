@@ -1,0 +1,3 @@
+[submodule "django-crm"]
+	path = django-crm
+	url = https://github.com/DjangoCRM/django-crm.git
