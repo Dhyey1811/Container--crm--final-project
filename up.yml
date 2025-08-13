@@ -1,27 +1,24 @@
-- name: bootstrap mysql
-  hosts: localhost
+- hosts: localhost
   gather_facts: false
   tasks:
-    - name: docker compose up
-      community.docker.docker_compose_v2:
-        project_src: .
-        files:
-        - docker-compose.yml
-        state: present
-    - name: Install mysql-client
-      ansible.builtin.package:
-        name: mysql-client
-        update_cache: yes
-        state: present
-      become: yes
-    - name: Install mysql python connectors
-      ansible.builtin.pip:
-        name:
-          - pymysql
-          - mysql-connector-python
-    - name: install nektos/act
-      ansible.builtin.shell: curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
-      args:
-        creates: bin/act
+    - name: Create namespace + PV/PVC
+      ansible.builtin.command:
+        cmd: kubectl apply -f k8s/pv-nfs.yaml
 
+    - name: Create cloudflared token secret (reads env CLOUDFLARED_TOKEN)
+      ansible.builtin.command:
+        cmd: >
+          kubectl -n crm create secret generic cloudflared-token
+          --from-literal=TUNNEL_TOKEN="${CLOUDFLARED_TOKEN}"
+      environment:
+        CLOUDFLARED_TOKEN: "{{ lookup('env','CLOUDFLARED_TOKEN') }}"
+      register: secret_out
+      failed_when: false   # ignore if already exists
 
+    - name: Deploy cloudflared
+      ansible.builtin.command:
+        cmd: kubectl apply -f k8s/cloudflared-deploy.yaml
+
+    - name: Install/upgrade Helm chart
+      ansible.builtin.command:
+        cmd: helm upgrade --install crm ./crm-chart -n crm

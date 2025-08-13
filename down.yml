@@ -1,15 +1,17 @@
-- name: remove mysql
-  hosts: localhost
+- hosts: localhost
   gather_facts: false
   tasks:
-    - name: docker compose down
-      community.docker.docker_compose_v2:
-        project_src: .
-        files:
-        - mysql-adminer.yml
-        state: absent
-    - name: Remove mysql-client
-      ansible.builtin.package:
-        name: mysql-client
-        state: absent
-      become: yes
+    - name: Uninstall Helm release
+      ansible.builtin.command:
+        cmd: helm uninstall crm -n crm
+      failed_when: false
+
+    - name: Delete cloudflared
+      ansible.builtin.command:
+        cmd: kubectl delete -n crm deploy cloudflared secret cloudflared-token
+      failed_when: false
+
+    - name: (optional) Keep PV for data safety; delete PVC only
+      ansible.builtin.command:
+        cmd: kubectl -n crm delete pvc crm-mysql-pvc
+      failed_when: false
